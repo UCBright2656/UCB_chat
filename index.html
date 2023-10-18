@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ScaleDrone Chat App</title>
+</head>
+<body>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="メッセージを入力">
+    <button onclick="sendMessage()">送信</button>
+
+    <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+    <script>
+        // ScaleDroneのチャンネルIDを設定
+        const channelID = AeLRZx2eFQCNr53t;
+
+        // ScaleDroneのAPIキーを設定
+        const apiKey = RxgZCkYbe4PhETl3qrq6B5Daqe5BuIzI;
+
+        const chatDiv = document.getElementById('chat');
+        const messageInput = document.getElementById('message');
+
+        const drone = new ScaleDrone(apiKey);
+
+        drone.on('open', error => {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log('Connected to ScaleDrone');
+            const room = drone.subscribe(channelID);
+
+            room.on('data', (text, member) => {
+              // 受信したメッセージを表示
+              chatDiv.innerHTML += `<p><b>${member.clientData.username}:</b> ${text}</p>`;
+            });
+          }
+        });
+
+        drone.on('close', event => {
+          console.log('Connection closed', event);
+        });
+
+        function sendMessage() {
+          const text = messageInput.value;
+          if (text) {
+            drone.publish({
+              room: channelID,
+              message: text,
+            });
+            messageInput.value = '';
+          }
+        }
+    </script>
+</body>
+</html>
